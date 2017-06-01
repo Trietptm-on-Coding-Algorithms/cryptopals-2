@@ -1,0 +1,7 @@
+#GCC output
+a.out
+#Coredump files
+core*
+#swap files
+*.swp
+*.swap
