@@ -60,7 +60,7 @@ int main (int argc, char* argv[]) {
     status = 1;
     return status;
   }
-  
+
   //While both of the characters wwe're looking at aren't null:
   while (*curA && *curB) {
     //First we convert the characters to numbers.
