@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-
 /* This strategy comes courtesy of Orwellophile on stackoverflow. Source:
  * stackoverflow.com/questions/10324/convert-a-hexaeecimal-string-to-an-integer-efficiently-in-c
  * This allows direct lookups, speeding up processing time.
@@ -42,6 +41,7 @@ static const unsigned char trigraph[]  =  "the""ing""and""ion""ent""hat""her""ti
                                           "ind""han""hou""whi""fro""use""der""ame"
                                           "ide""ort""und""rin""cti""ant""hen""end"
                                           "tho""art""red""lin";
+
 /**
  * This converts the given character string to lower case if shift is 0 and upper case otherwise.
  */
@@ -164,14 +164,14 @@ int main (int argc, char* argv[]) {
   }
   //What follows is the logic for converting every pair of hexadecimal characters to a single char.
   while (*cur && *cur + 1) {
-    temp = hex2dec[(unsigned) *cur++] << 4;
-    temp |= hex2dec[(unsigned) *cur++];
+    temp = hextable[(unsigned) *cur++] << 4;
+    temp |= hextable[(unsigned) *cur++];
     *curhex++ = temp;
     temp = 0;
     }
   //Edge case: odd number of characters
   if (*cur) {
-    temp = hex2dec[(unsigned) *cur++] << 4;
+    temp = hextable[(unsigned) *cur++] << 4;
     *curhex = temp;
   }
 
