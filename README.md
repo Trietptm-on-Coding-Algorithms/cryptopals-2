@@ -6,5 +6,11 @@ STATUS:
 
 1.  1.hex2b64.c  
     Synopsis  
-    >*executable* [-f input filename] | [raw input] | [-]  
+    >*executable* [-f input_filename] | [raw_input] | [-]  
     If input has not been recieved as an argument, it will look to stdin for input.
+
+2.  2.fixedxor.c  
+    Synopsis  
+    >*executable* [-f filename] | [raw_input_1 raw_input_2] | [-]  
+    If input has not been recieved as an argument, it will look to stdin for input.
+
