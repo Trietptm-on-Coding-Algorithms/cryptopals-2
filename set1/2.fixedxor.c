@@ -5,13 +5,13 @@
  * stackoverflow.com/questions/10324/convert-a-hexaeecimal-string-to-an-integer-efficiently-in-c
  * This allows direct lookups, speeding up processing time.
  */
-static const unsigned char hextable[] = {
+static const unsigned char hex_to_dec[] = {
   [0 ... 255] = 0,
   ['0'] = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
   ['A'] = 10, 11, 12, 13, 14, 15,
   ['a'] = 10, 11, 12, 13, 14, 15
 };
-static const unsigned char dec2hex[] = {
+static const unsigned char dec_to_hex[] = {
   [0] = '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
   'a', 'b', 'c', 'd', 'e', 'f'
 };
@@ -64,12 +64,12 @@ int main (int argc, char* argv[]) {
   //While both of the characters wwe're looking at aren't null:
   while (*curA && *curB) {
     //First we convert the characters to numbers.
-    hexA = hex2dec[*curA];
-    hexB = hex2dec[*curB];
+    hexA = hex_to_dec[*curA];
+    hexB = hex_to_dec[*curB];
     //Then we XOR them.
     hexout = hexA ^ hexB;
     //Third, we encode the output.
-    output[outindex++] = dec2hex[hexout];
+    output[outindex++] = dec_to_hex[hexout];
     //Finally, we increment our counters.
     curA++;
     curB++;
