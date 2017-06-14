@@ -37,10 +37,8 @@ int main (int argc, char* argv[]) {
 
   //input hex value as either an argument or stdin.
   if (argc >= 3) {
-    strncpy(bufferA, argv[1], sizeof(bufferA));
-    bufferA[sizeof(bufferA) - 1] = '\0';
-    strncpy(bufferB, argv[2], sizeof(bufferB));
-    bufferB[sizeof(bufferB) - 1] = '\0';
+    strncpy(bufferA, argv[1], sizeof(bufferA) - 1);
+    strncpy(bufferB, argv[2], sizeof(bufferB) - 1);
   } else if (fgets(bufferA, sizeof(bufferA), stdin) != NULL) {
     //remove trailing newline if one exists
     char *p;
@@ -61,11 +59,33 @@ int main (int argc, char* argv[]) {
     return status;
   }
 
+  //If the given strings contain '.', we interpret them as filenames
+  if (strchr(bufferA, '.')) {
+    FILE * fpa = fopen(bufferA, "r");
+    if (fpa != NULL) {
+      memset(bufferA, 0, sizeof(bufferA));
+      fgets(bufferA, sizeof(bufferA), fpa);
+    } else {
+      fprintf(stderr, "Error reading from %s.\n", bufferA);
+    }
+    fclose(fpa);
+  }
+  if (strchr(bufferB, '.')) {
+    FILE * fpb = fopen(bufferB, "r");
+    if (fpb != NULL) {
+      memset(bufferB, 0, sizeof(bufferB));
+      fgets(bufferB, sizeof(bufferB), fpb);
+    } else {
+      fprintf(stderr, "Error reading from %s.\n", bufferB);
+    }
+    fclose(fpb);
+  }
+
   //While both of the characters wwe're looking at aren't null:
   while (*curA && *curB) {
     //First we convert the characters to numbers.
-    hexA = hex_to_dec[*curA];
-    hexB = hex_to_dec[*curB];
+    hexA = hex_to_dec[(unsigned) *curA];
+    hexB = hex_to_dec[(unsigned) *curB];
     //Then we XOR them.
     hexout = hexA ^ hexB;
     //Third, we encode the output.
