@@ -21,10 +21,12 @@ static const unsigned char dec_to_hex[] = {
  */
 int main (int argc, char* argv[]) {
 
+  int curarg = 1;
   int status = 0;
   //1440 bits of information + terminating null
   char bufferA[361] = "";
   char bufferB[361] = "";
+  char bufferF[256] = "";
   char output[361] = "";
   char *curA = bufferA;
   char *curB = bufferB;
@@ -35,22 +37,32 @@ int main (int argc, char* argv[]) {
   unsigned char hexout = 0;
   unsigned int outindex = 0;
 
-  //input hex value as either an argument or stdin.
-  if (argc >= 3) {
-    strncpy(bufferA, argv[1], sizeof(bufferA) - 1);
-    strncpy(bufferB, argv[2], sizeof(bufferB) - 1);
-  } else if (fgets(bufferA, sizeof(bufferA), stdin) != NULL) {
-    //remove trailing newline if one exists
-    char *p;
-    if ((p = strchr(bufferA, '\n')) != NULL && *(p + 1) == '\0') {
-      *p = '\0';
-    }
-    if (fgets(bufferB, sizeof(bufferB), stdin) != NULL) {
-      //remove trailing newline if one exists
-      if ((p = strchr(bufferB, '\n')) != NULL && *(p + 1) == '\0') {
-        *p = '\0';
+  //Either take input data as an argument, file containing input data as argument, or look for input through stdin.
+  if (argc >= 3 && strncmp(argv[curarg], "-", 1)) {
+    //If there are no '-' switches and two arguments, treat them as the two inputs.
+    strncpy(bufferA, argv[curarg++], sizeof(bufferA) - 1);
+    strncpy(bufferB, argv[curarg], sizeof(bufferB) - 1);
+  } else if (argc >= 3 && !strcmp(argv[curarg], "-f")) {
+    curarg++;
+
+    strncpy(bufferF, argv[curarg], sizeof(bufferF) - 1);
+    FILE * fp = fopen(bufferF, "r");
+    
+    if (fp != NULL) {
+      if(fgets(bufferA, sizeof(bufferA), fp) == NULL) {
+        status = 1;
+        return status;
+      }
+      if (fgets(bufferB, sizeof(bufferB), fp) == NULL) {
+        status = 1;
+        return status;
       }
     } else {
+      fprintf(stderr, "Error reading from %s.\n", bufferF);
+    }
+    fclose(fp);
+  } else if (fgets(bufferA, sizeof(bufferA), stdin) != NULL) {
+    if (fgets(bufferB, sizeof(bufferB), stdin) == NULL) {
       status = 1;
       return status;
     }
@@ -59,26 +71,13 @@ int main (int argc, char* argv[]) {
     return status;
   }
 
-  //If the given strings contain '.', we interpret them as filenames
-  if (strchr(bufferA, '.')) {
-    FILE * fpa = fopen(bufferA, "r");
-    if (fpa != NULL) {
-      memset(bufferA, 0, sizeof(bufferA));
-      fgets(bufferA, sizeof(bufferA), fpa);
-    } else {
-      fprintf(stderr, "Error reading from %s.\n", bufferA);
-    }
-    fclose(fpa);
+  //Cleanup:
+  char *p;
+  if ((p = strchr(bufferA, '\n')) != NULL && *(p + 1) == '\0') {
+    *p = '\0';
   }
-  if (strchr(bufferB, '.')) {
-    FILE * fpb = fopen(bufferB, "r");
-    if (fpb != NULL) {
-      memset(bufferB, 0, sizeof(bufferB));
-      fgets(bufferB, sizeof(bufferB), fpb);
-    } else {
-      fprintf(stderr, "Error reading from %s.\n", bufferB);
-    }
-    fclose(fpb);
+  if ((p = strchr(bufferB, '\n')) != NULL && *(p + 1) == '\0') {
+    *p = '\0';
   }
 
   //While both of the characters wwe're looking at aren't null:
