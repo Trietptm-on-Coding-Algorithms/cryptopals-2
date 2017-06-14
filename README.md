@@ -4,10 +4,7 @@ The implementations are abnormal as I am also trying to practice writing small a
 
 STATUS:
 
-1.  1.hex2b64.c
-    
-    Synopsis
-    
-    >*executable* [-f input filename] | [raw input] | [-]
-    
+1.  1.hex2b64.c  
+    Synopsis  
+    >*executable* [-f input filename] | [raw input] | [-]  
     If input has not been recieved as an argument, it will look to stdin for input.
