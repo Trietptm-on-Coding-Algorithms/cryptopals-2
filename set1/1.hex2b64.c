@@ -21,10 +21,15 @@ static const unsigned char b64table[] = {
 
 /**
  * This takes a hexadecimal number as input and prints its base64 representation.
+ * arguments: [-f filename]|[-]|[input]
+ * If no arguments are present (Or the only argument is '-'), it will look for input from stdin.
  */
 int main (int argc, char* argv[]) {
 
   int status = 0;
+  //Current argument to parse.
+  //0 is taken by the executable name, so we start with 1.
+  int curarg = 1;
   //1440 bits of information + terminating null
   char buffer[361] = "";
   //The same information in base 64 takes 2/3 the space as in hexadecimal.
@@ -44,10 +49,22 @@ int main (int argc, char* argv[]) {
   unsigned char letter = 0;
   unsigned char curhex = 0;
 
-  //input hex value as either an argument or stdin.
-  if (argc >= 2) {
-    strncpy(buffer, argv[1], sizeof(buffer));
-    buffer[sizeof(buffer) - 1] = '\0';
+  //Either take input data as an argument, file containing input data as argument, or look for input through stdin.
+  if (argc >= 3 && !strcmp(argv[curarg], "-f")) {
+    curarg++;
+    
+    strncpy(buffer, argv[curarg], sizeof(buffer) - 1);
+    FILE * fp = fopen(buffer, "r");
+    
+    if (fp != NULL) {
+      memset(buffer, 0, sizeof(buffer));
+      fgets(buffer, sizeof(buffer), fp);
+    } else {
+      fprintf(stderr, "Error reading from %s.\n", buffer);
+    }
+    fclose(fp);
+  } else if (argc >= 2 && strcmp(argv[curarg], "-")) {
+    strncpy(buffer, argv[curarg], sizeof(buffer) - 1);
   } else if (fgets(buffer, sizeof(buffer), stdin) != NULL) {
     //remove trailing newline if one exists
     char *p;
@@ -61,15 +78,7 @@ int main (int argc, char* argv[]) {
 
   //If the given strings contain '.', we interpret them as filenames
   if (strchr(buffer, '.')) {
-    FILE * fp = fopen(buffer, "r");
-    if (fp != NULL) {
-      memset(buffer, 0, sizeof(buffer));
-      fgets(buffer, sizeof(buffer), fp);
-    } else {
-      fprintf(stderr, "Error reading from %s.\n", buffer);
-    }
-    fclose(fp);
-  }
+      }
 
   //Edge case: negative number.
   if (buffer[0] == '-') {
