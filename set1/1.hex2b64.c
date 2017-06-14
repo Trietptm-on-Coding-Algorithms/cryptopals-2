@@ -59,6 +59,18 @@ int main (int argc, char* argv[]) {
     return status;
   }
 
+  //If the given strings contain '.', we interpret them as filenames
+  if (strchr(buffer, '.')) {
+    FILE * fp = fopen(buffer, "r");
+    if (fp != NULL) {
+      memset(buffer, 0, sizeof(buffer));
+      fgets(buffer, sizeof(buffer), fp);
+    } else {
+      fprintf(stderr, "Error reading from %s.\n", buffer);
+    }
+    fclose(fp);
+  }
+
   //Edge case: negative number.
   if (buffer[0] == '-') {
     output[0] = '-';
@@ -74,7 +86,7 @@ int main (int argc, char* argv[]) {
   //While the character we're looking at isn't null:
   while (*curchar) {
     //First we convert it to a number rather than a character.
-    curhex = hextable[*curchar];
+    curhex = hextable[(unsigned) *curchar];
     //Then we figure out how far into a triplet we are.
     if (threemode == 0) {
       //The first number takes up the top four bits of the first output.
