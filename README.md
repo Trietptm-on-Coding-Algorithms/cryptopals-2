@@ -15,7 +15,7 @@ STATUS:
     If input has not been recieved as an argument, it will look to stdin for input.
 
 3.  3.xorcipher.c  
-    Works, is not yet following hte same IO standard as 1 and 2.
+    Works, is not yet following the same IO standard as 1 and 2.
 
 4.  4.detectsinglexor.c  
     Does not work. Correctly parses sample data from #3, but does not show any English-like strings in the sample #4's sample data.
