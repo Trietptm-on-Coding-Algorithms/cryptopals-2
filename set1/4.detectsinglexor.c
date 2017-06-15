@@ -1,7 +1,3 @@
-//BUGGED.
-//This parses a file with the sample data for 3 properly, but does not find any lines that both avoid non-printing characters and are close to English.
-//I don't know where to go with this.
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -19,8 +15,7 @@ static const unsigned char hextable[] = {
 
 //Relative frequency lists courtesy of http://mdickens.me/typing/letter_frequency.html
 //Plans for expansion: replace with a lookup table. This gets complicated for n-grams.
-static const unsigned char monograph[] =  " etaoinsrhldcumfgpyw\nb,.vk-\"_\'x)(;0j1q=2:"
-                                          "z/*!?$35>49[]867\\+|&<%@#^`~";
+static const unsigned char monograph[] =  " etaoinsrhldcumgyfpwb.,vk0-'x)(1j2:q\"/5!?z346879%[]*=+|_;\\>$#^&@<~{}`";
 static const unsigned char digraph[] =    "th""he""in""er""an""re""on""at""en""nd""st"
                                           "or""te""es""is""ha""ou""it""to""ed""ti""ng"
                                           "ar""se""al""nt""as""le""ve""of""me""hi""ea"
@@ -46,6 +41,8 @@ static const unsigned char trigraph[]  =  "the""ing""and""ion""ent""hat""her""ti
                                           "ide""ort""und""rin""cti""ant""hen""end"
                                           "tho""art""red""lin";
 
+static int debug = 0;
+
 /**
  * This converts the given character string to lower case if shift is 0 and upper case otherwise.
  */
@@ -62,12 +59,12 @@ void capslock (char shift, size_t size, char* chararray) {
   return;
 }
 
-//Returns 0 if every character in [0, size) is printable, -1 otherwise.
+//Returns 0 if every character in [0, size), before the first \0, is printable, -1 otherwise.
 //This assumes that the plaintext answer does not end early with '\0'.
 signed int unprintable_score(size_t size, char* chararray) {
-  for (int i = 0; i < size; i ++) {
+  for (int i = 0; chararray[i] && i < size; i ++) {
     unsigned char current = (unsigned) chararray[i];
-    if (current <= 31 || current > 127) {
+    if (current <= 31 || current >= 127) {
       return -1;
     }
   }
@@ -107,7 +104,7 @@ signed int plaintext_score (size_t size, char* chararray) {
     for (size_t i = 0; chararray[i + 2] && (i + 2) < size; i++) {
       for (size_t j = 0, score = sizeof(trigraph); j < sizeof(trigraph); j += 3, score -= 3) {
         if (lower_copy[i] == trigraph[j] && lower_copy[i + 1] == trigraph[j + 1] && lower_copy[i + 2] == trigraph[j + 2]) {
-          result += (score);
+          result += score;
         }
       }
     }
@@ -118,7 +115,7 @@ signed int plaintext_score (size_t size, char* chararray) {
     for (size_t i = 0; chararray[i + 1] && (i + 1) < size; i++) {
       for (size_t j = 0, score = sizeof(digraph); j < sizeof(digraph); j += 2, score -= 2) {
         if (lower_copy[i] == digraph[j] && lower_copy[i + 1] == digraph[j + 1]) {
-          result += sizeof(digraph) - j;
+          result += score;
         }
       }
     }
@@ -128,13 +125,15 @@ signed int plaintext_score (size_t size, char* chararray) {
   for (size_t i = 0; chararray[i] && i < size; i++) {
     for (size_t j = 0, score = sizeof(monograph); j < sizeof(monograph); j++, score--) {
       if (lower_copy[i] == monograph[j]) {
-        result += sizeof(monograph) - j;
+        result += score;
       }
     }
   }
 
   //DEBUG: This prints every candidate plaintext that has not been disqualified for the presence of non-printing characters.
-  //printf("DEBUG: \tScore=%4d\tText=%s\n", result, lower_copy);
+  if (debug) {
+    printf("DEBUG: \tScore=%4d\tText=%s\n", result, lower_copy);
+  }
 
   free(lower_copy);
   return result;
@@ -219,21 +218,21 @@ int main (int argc, char* argv[]) {
   int status = 0;
   char buffer[255] = {0};
   //Here we handle input. As 1 and 2 have done, this takes input as either an argument or expects it from stdin.
-  if (argc >= 2) {
-    strncpy(buffer, argv[1], sizeof(buffer) - 1);
-  } else if (fgets(buffer, sizeof(buffer) - 1, stdin) != NULL) {
-    //remove trailing newline if one exists
-    char *p;
-    if ((p = strchr(buffer, '\n')) != NULL && *(p + 1) == '\0') {
-      *p = '\0';
+  for (int curarg = 1; curarg < argc && strcmp(argv[curarg], "-"); curarg ++) {
+    if (!strcmp(argv[curarg], "-d")) {
+      debug = 1;
+    } else if (!strcmp(argv[curarg], "-f")) {
+      strncpy(buffer, argv[++curarg], sizeof(buffer) - 1);
     }
-  } else {
-    status = 1;
-    return status;
   }
-
+  
   int line_size, line_num, max_line_size = 0;
-  FILE * fp = fopen(buffer, "r");
+  FILE * fp;
+  if (buffer[0]) {
+    fp = fopen(buffer, "r");
+  } else {
+    fp = stdin;
+  }
 
   //First step is to read the file to find out both how long each line is and how many lines there are.
   //In the real world, either talk to the people who will give you the data, or have an ini file, or bake in numbers from any samples you recieve.

@@ -20,7 +20,11 @@ STATUS:
     If input has not been recieved as an argument, it will look to stdin for input.
 
 4.  4.detectsinglexor.c  
-    Does not work. Correctly parses sample data from #3, but does not show any English-like strings in the sample #4's sample data.
+    Synopsis  
+    >*executable* [-d] [-f filename]
+    If filename has not been provided as an argument, the program will listen to stdin for input.  
+    -d switches on debug output.
+    This currently fails on the the challenge 4 sample data but succeeds on challenge 3's.  
 
 5.  5.repeatingkeyxor.c  
     Synopsis
