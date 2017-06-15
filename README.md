@@ -21,9 +21,10 @@ STATUS:
 
 4.  4.detectsinglexor.c  
     Synopsis  
-    >*executable* [-d] [-f filename]
+    >*executable* [-d] [-f filename] [-v]
     If filename has not been provided as an argument, the program will listen to stdin for input.  
     -d switches on debug output.
+    -v switches on verbose output.
     This currently fails on the the challenge 4 sample data but succeeds on challenge 3's.  
 
 5.  5.repeatingkeyxor.c  

@@ -42,6 +42,7 @@ static const unsigned char trigraph[]  =  "the""ing""and""ion""ent""hat""her""ti
                                           "tho""art""red""lin";
 
 static int debug = 0;
+static int verbose = 0;
 
 /**
  * This converts the given character string to lower case if shift is 0 and upper case otherwise.
@@ -223,6 +224,8 @@ int main (int argc, char* argv[]) {
       debug = 1;
     } else if (!strcmp(argv[curarg], "-f")) {
       strncpy(buffer, argv[++curarg], sizeof(buffer) - 1);
+    } else if (!strcmp(argv[curarg], "-v")) {
+      verbose = 1;
     }
   }
   
@@ -290,9 +293,11 @@ int main (int argc, char* argv[]) {
       current_line ++;
     }
   }
-
-  printf("Best line was %d XORed with %x, with a score of %d.\n", best_line, best_key, best_score);
-  printf("Result: %s\n", best_string);
+  
+  if (verbose) {
+    printf("Best line was %d XORed with %x, with a score of %d.\n", best_line, best_key, best_score);
+  }
+  printf("%s\n", best_string);
 
   free (result_string);
   free (best_string);
