@@ -17,7 +17,7 @@ STATUS:
     If input has not been recieved as an argument, it will look to stdin for input.
 
 4.  4.detectsinglexor.c  
-    >*executable* [-d] [-f filename] [-v]
+    >*executable* [-d] [-f filename] [-v]  
     If filename has not been provided as an argument, the program will listen to stdin for input.  
     -d switches on debug output.  
     -v switches on verbose output.  
