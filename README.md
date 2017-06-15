@@ -15,13 +15,15 @@ STATUS:
     If input has not been recieved as an argument, it will look to stdin for input.
 
 3.  3.xorcipher.c  
-    Works, is not yet following the same IO standard as 1 and 2.
+    Synopsis  
+    >*executable* [-f filename] | [raw_input] | [-]  
+    If input has not been recieved as an argument, it will look to stdin for input.
 
 4.  4.detectsinglexor.c  
     Does not work. Correctly parses sample data from #3, but does not show any English-like strings in the sample #4's sample data.
 
 5.  5.repeatingkeyxor.c  
-    Works. Like 3, not yet to the IO standard.
+    Works, but does not yet follow the IO standard of 1-3.
 
 6.  6.breakrepeatingxor.c  
-    Work in Progress. Hamming distance calculation works. Nothing else implemented yet.
+    Work in Progress. Hamming distance calculation works. Nothing else is implemented yet.

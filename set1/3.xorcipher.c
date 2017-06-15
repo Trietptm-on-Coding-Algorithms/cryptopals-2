@@ -127,6 +127,7 @@ signed int score (size_t size, char* chararray) {
 int main (int argc, char* argv[]) {
 
   int status = 0;
+  int curarg = 1;
   //1440 bits of information + terminating null
   char buffer[361] = "";
   char* cur = buffer;
@@ -149,8 +150,20 @@ int main (int argc, char* argv[]) {
   } while (counter != 0);
   counter = 0;
 
-  //Then we handle input. As 1 and 2 have done, this takes input as either an argument or expects it from stdin.
-  if (argc >= 2) {
+  if (argc >= 3 && !strcmp(argv[curarg], "-f")) {
+    curarg++;
+    
+    strncpy(buffer, argv[curarg], sizeof(buffer) - 1);
+    FILE * fp = fopen(buffer, "r");
+    
+    if (fp != NULL) {
+      memset(buffer, 0, sizeof(buffer));
+      fgets(buffer, sizeof(buffer), fp);
+    } else {
+      fprintf(stderr, "Error reading from %s.\n", buffer);
+    }
+    fclose(fp);
+  } else if (argc >= 2 && strncmp(argv[curarg], "-", 1)) {
     strncpy(buffer, argv[1], sizeof(buffer) - 1);
   } else if (fgets(buffer, sizeof(buffer) - 1, stdin) != NULL) {
     //remove trailing newline if one exists
