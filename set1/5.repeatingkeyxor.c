@@ -5,7 +5,7 @@
 /**
  * This takes a hexadecimal string XOR'd by a single character and guesses what the key is.
  *
- * Expected arguments: 5.repeatingxor key plaintext_filename
+ * Expected arguments: 5.repeatingxor [-k key] [-f plaintext_filename]
  */
 int main (int argc, char* argv[]) {
   int status = 0;
@@ -14,27 +14,32 @@ int main (int argc, char* argv[]) {
   size_t index = 0;
   char plaintext_filename[256] = {0};
 
-  //Here we handle input. As previous exercises have done, this takes input as either an argument or expects it from stdin.
-  if (argc >= 3) {
-    strncpy(key, argv[1], sizeof(key) - 1);
-    strncpy(plaintext_filename, argv[2], sizeof(plaintext_filename) - 1);
-  } else if ((fgets(key, sizeof(key) - 1, stdin) != NULL)
-      && (fgets(plaintext_filename, sizeof(plaintext_filename) - 1, stdin) != NULL)) {
-    //remove trailing newline if one exists
+  for (int curarg = 1; curarg < argc && strcmp(argv[curarg], "-"); curarg++) {
+    if (!strcmp(argv[curarg], "-k")) {
+      strncpy(key, argv[++curarg], sizeof(key) - 1);
+    } else if (!strcmp(argv[curarg], "-f")) {
+      strncpy(plaintext_filename, argv[++curarg], sizeof(plaintext_filename) - 1);
+    }
+  }
+
+  if (key[0] == 0) {
+    if (fgets(key, sizeof(key) - 1, stdin) == NULL) {
+      fprintf(stderr, "Could not read inputted key.\n");
+      status = 1;
+      return status;
+    }
     char *p;
     if ((p = strchr(key, '\n')) != NULL && *(p + 1) == '\0') {
       *p = '\0';
     }
-    if ((p = strchr(plaintext_filename, '\n')) != NULL && *(p + 1) == '\0') {
-      *p = '\0';
-    }
-  } else {
-    //TODO: add stderr messages about missing input.
-    status = 1;
-    return status;
   }
 
-  FILE * fp = fopen(plaintext_filename, "r");
+  FILE * fp;
+  if (plaintext_filename[0] != 0) {
+    fp = fopen(plaintext_filename, "r");
+  } else {
+    fp = stdin;
+  }
 
   char next_char = 0;
   //No sense doing multiple passes is we can get by with just one.

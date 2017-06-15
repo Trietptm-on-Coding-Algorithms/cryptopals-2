@@ -23,7 +23,10 @@ STATUS:
     Does not work. Correctly parses sample data from #3, but does not show any English-like strings in the sample #4's sample data.
 
 5.  5.repeatingkeyxor.c  
-    Works, but does not yet follow the IO standard of 1-3.
+    Synopsis
+    >*executable* [-k key] [-f filename]  
+    If key has not been provided as an argument, the program will interpret the first line as the key.  
+    If filename has not been provided as the argument, the program will listen to stdin for the input.
 
 6.  6.breakrepeatingxor.c  
     Work in Progress. Hamming distance calculation works. Nothing else is implemented yet.
