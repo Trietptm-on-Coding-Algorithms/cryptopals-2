@@ -47,18 +47,28 @@ int hamming(size_t size, const char* lhs, const char* rhs) {
 
 /*
  * Flags:
- *  -f filename = any file input. If this is not present input is read from stdin.
- *  -h          = hamming;        print the hamming distance between two lines of text.
  *  -d          = debug;          print debug information during run
+ *  -e stage    = execute stage;  run only the given stage. Valid stages are "hamming", "b64", "keylength", "histogram"
+ *  -f infilename = any file input. If this is not present input is read from stdin.
+ *  -h          = hamming;        print the hamming distance between two lines of text.
+ *  -i format   = input format;   If format is "hex" or "hexadecimal" it will skip the initial b64-> hex conversion.
+ *  -k          = keep;           keeps intermediate file(s) rather than deleting them.
+ *  -o infilename = output;         writes output to the specified file; assumes -k as well.
  *  -v          = verbose;        print extra information on completion
  *  -           = end of arguments
  */
 int main (int argc, char* argv[]) {
   int status = 0;
+  int hamming_only = 0;
+  int b64_only = 0;
+  int keylength_only = 0;
+  int histogram_only = 0;
+  int keep = 0;
+  int skip_b64 = 0;
   init();
 
-  int hamming_only = 0;
-  char filename[256] = "";
+  char infilename[256] = "";
+  char outfilename[256] = "";
 
   for (int curarg = 1; curarg < argc && strcmp(argv[curarg], "-"); curarg++) {
     if (!strcmp(argv[curarg], "-d")) {
@@ -68,13 +78,31 @@ int main (int argc, char* argv[]) {
     } else if (!strcmp(argv[curarg], "-h")) {
       hamming_only = 1;
     } else if (!strcmp(argv[curarg], "-f")) {
-      strncpy(filename, argv[++curarg], sizeof(filename) - 1);
+      strncpy(infilename, argv[++curarg], sizeof(infilename) - 1);
+    } else if (!strcmp(argv[curarg], "-e")) {
+      if (!strcmp(argv[++curarg], "hamming")) {
+        hamming_only = 1;
+      } else if (!strcmp(argv[curarg], "b64")) {
+        b64_only = 1;
+      } else if (!strcmp(argv[curarg], "keylength")) {
+        keylength_only = 1;
+      } else if (!strcmp(argv[curarg], "histogram")) {
+        histogram_only = 1;
+      }
+    } else if (!strcmp(argv[curarg], "-k")) {
+      keep = 1;
+    } else if (!strcmp(argv[curarg], "-o")) {
+      strncpy(infilename, argv[++curarg], sizeof(infilename) - 1);
+    } else if (!strcmp(argv[curarg], "-i")) {
+      if (!strcmp(argv[++curarg], "hex") || !strcmp(argv[++curarg], "hexadecimal")) {
+        skip_b64 = 1;
+      }
     }
   }
 
   FILE * fp;
-  if (filename[0]) {
-    fp = fopen(filename, "r");
+  if (infilename[0]) {
+    fp = fopen(infilename, "r");
   } else {
     fp = stdin;
   }
@@ -85,23 +113,14 @@ int main (int argc, char* argv[]) {
     char * pointerA = fgets(bufferA, sizeof(bufferA), fp);
     char * pointerB = fgets(bufferB, sizeof(bufferB), fp);
     if (pointerA == NULL || pointerB == NULL) {
-      fprintf(stderr, "Error reading from %s.\n", filename);
+      fprintf(stderr, "Error reading from %s.\n", infilename);
       status = 1;
     } else {
       printf("%d\n", hamming(sizeof(bufferA), bufferA, bufferB));
     }
-  } else {
-    //Here we find the normalized hamming distances between the first 4 blocks for a range of potential key sizes.
-    size_t keysize;
-    char block_A[12] = "";
-    char block_B[12] = "";
-    char block_C[12] = "";
-    char block_D[12] = "";
-
-    for (keysize = 2; keysize < sizeof(block_A); keysize++) {
-
-    }
   }
+
+
 
   fclose(fp);
   return status;
